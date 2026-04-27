@@ -11,3 +11,6 @@ plotly
 scikit-image
 scipy
 nilearn
+SimpleITK
+vtk
+matplotlib

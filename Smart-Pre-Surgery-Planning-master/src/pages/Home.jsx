@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -9,14 +9,16 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 /* Team images */
-import supervisorImg from "../assets/hanaaimage.jpeg";
-import tawfekImg from "../assets/tawfikimage.jpeg";
-import adhamImg from "../assets/adhamimage.jpeg";
-import arwaImg from "../assets/arwaimage.jpeg";
-import mariamImg from "../assets/maryamimage.jpeg";
-import malakImg from "../assets/malakimage.jpeg";
-import basmalaImg from "../assets/basmalaimage.jpeg";
+// import supervisorImg from "../assets/hanaaimage.jpeg";
+// import tawfekImg from "../assets/tawfikimage.jpeg";
+// import adhamImg from "../assets/adhamimage.jpeg";
+// import arwaImg from "../assets/arwaimage.jpeg";
+// import mariamImg from "../assets/maryamimage.jpeg";
+// import malakImg from "../assets/malakimage.jpeg";
+// import basmalaImg from "../assets/basmalaimage.jpeg";
 
 const CONTACT_API =
   process.env.REACT_APP_CONTACT_API || "/api/contact";
@@ -25,9 +27,78 @@ function HomePage() {
   const { t } = useTranslation();
   const location = useLocation();
 
-  // 🔥 حالة للتحميل
-  const [downloadUrl, setDownloadUrl] = useState(null);
+  // ── MRI upload state ───────────────────────────────────────
+  const [mriFiles, setMriFiles] = useState({ t1: null, t1ce: null, t2: null, flair: null });
+  const [uploadError, setUploadError] = useState("");
+  const [jobId, setJobId] = useState(null);
+  const [jobStatus, setJobStatus] = useState(null);   // full status object
+  const [polling, setPolling] = useState(false);
+  const pollRef = useRef(null);
 
+  const mriKeys = [
+    { key: "t1",    label: t("upload.t1_label")    },
+    { key: "t1ce",  label: t("upload.t1ce_label")  },
+    { key: "t2",    label: t("upload.t2_label")    },
+    { key: "flair", label: t("upload.flair_label") },
+  ];
+
+  function handleFileChange(key, e) {
+    const file = e.target.files[0] || null;
+    setMriFiles(prev => ({ ...prev, [key]: file }));
+    setUploadError("");
+  }
+
+  async function handleAnalyze() {
+    const missing = mriKeys.filter(({ key }) => !mriFiles[key]);
+    if (missing.length > 0) {
+      setUploadError(t("upload.select_all"));
+      return;
+    }
+    setUploadError("");
+    setJobStatus({ status: "queued", progress: t("upload.processing") });
+
+    const form = new FormData();
+    form.append("t1",    mriFiles.t1);
+    form.append("t1ce",  mriFiles.t1ce);
+    form.append("t2",    mriFiles.t2);
+    form.append("flair", mriFiles.flair);
+
+    try {
+      const res  = await fetch(`${API_URL}/segment`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Upload failed");
+      setJobId(data.job_id);
+      setPolling(true);
+    } catch (err) {
+      setJobStatus({ status: "failed", error: err.message });
+    }
+  }
+
+  // Poll /status every 3 s while processing
+  useEffect(() => {
+    if (!polling || !jobId) return;
+    pollRef.current = setInterval(async () => {
+      try {
+        const res  = await fetch(`${API_URL}/status/${jobId}`);
+        const data = await res.json();
+        setJobStatus(data);
+        if (data.status === "done" || data.status === "failed") {
+          setPolling(false);
+          clearInterval(pollRef.current);
+        }
+      } catch {
+        // network hiccup — keep polling
+      }
+    }, 3000);
+    return () => clearInterval(pollRef.current);
+  }, [polling, jobId]);
+
+  const isDone   = jobStatus?.status === "done";
+  const isFailed = jobStatus?.status === "failed";
+  const isRunning = jobStatus && !isDone && !isFailed;
+  const result    = jobStatus?.result || {};
+
+  // ── Contact state ──────────────────────────────────────────
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactMessage, setContactMessage] = useState("");
@@ -111,14 +182,14 @@ function HomePage() {
     }
   }
 
-  const members = [
-    { img: tawfekImg, name: "Tawfek Mohamed", role: "AI Engineer" },
-    { img: adhamImg, name: "Adham Osama", role: "AI Engineer" },
-    { img: arwaImg, name: "Arwa Hisham", role: "Frontend Developer" },
-    { img: mariamImg, name: "Mariam Salah", role: "Backend Developer" },
-    { img: malakImg, name: "Malak Arfa", role: "Flutter Developer" },
-    { img: basmalaImg, name: "Basmala Hashim", role: "Flutter Developer" },
-  ];
+  // const members = [
+  //   { img: tawfekImg, name: "Tawfek Mohamed", role: "AI Engineer" },
+  //   { img: adhamImg, name: "Adham Osama", role: "AI Engineer" },
+  //   { img: arwaImg, name: "Arwa Hisham", role: "Frontend Developer" },
+  //   { img: mariamImg, name: "Mariam Salah", role: "Backend Developer" },
+  //   { img: malakImg, name: "Malak Arfa", role: "Flutter Developer" },
+  //   { img: basmalaImg, name: "Basmala Hashim", role: "Flutter Developer" },
+  // ];
 
   return (
     <div className="home-container">
@@ -249,47 +320,138 @@ function HomePage() {
         <div className="upload-wrapper">
 
           <h2>{t("get_started.title")}</h2>
-          <p>{t("get_started.text")}</p>
+          <p className="upload-intro">{t("get_started.text")}</p>
 
-          <div className="upload-box">
-
-            <input
-              type="file"
-              id="videoUpload"
-              hidden
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const resultContent = "This is the processed result file";
-
-                const blob = new Blob([resultContent], { type: "text/plain" });
-                const url = window.URL.createObjectURL(blob);
-
-                setDownloadUrl(url);
-              }}
-            />
-
-            <label htmlFor="videoUpload" className="upload-btn">
-              {t("upload.click_upload")}
-            </label>
-
-            <p className="upload-hint">
-              {t("upload.description")}
-            </p>
-
-            {downloadUrl && (
-              <a
-                href={downloadUrl}
-                download="result.txt"
-                className="upload-btn"
-                style={{ marginTop: "10px", display: "inline-block" }}
+          {/* ── File slots ── */}
+          <div className="mri-grid">
+            {mriKeys.map(({ key, label }) => (
+              <label
+                key={key}
+                className={`mri-slot ${mriFiles[key] ? "has-file" : ""}`}
+                htmlFor={`mri-${key}`}
               >
-                Download Result
-              </a>
-            )}
-
+                <span className="mri-slot-tag">{label}</span>
+                <span className="mri-slot-hint">{t("upload.file_hint")}</span>
+                <span className="mri-slot-name">
+                  {mriFiles[key] ? mriFiles[key].name : "Click to select"}
+                </span>
+                <input
+                  id={`mri-${key}`}
+                  type="file"
+                  accept=".nii,.nii.gz"
+                  hidden
+                  onChange={(e) => handleFileChange(key, e)}
+                />
+              </label>
+            ))}
           </div>
+
+          {uploadError && <p className="upload-error">{uploadError}</p>}
+
+          {/* ── Analyze button ── */}
+          {!isRunning && !isDone && (
+            <button
+              className="analyze-btn"
+              onClick={handleAnalyze}
+              disabled={isRunning}
+            >
+              {t("upload.analyze_btn")}
+            </button>
+          )}
+
+          {/* ── Progress ── */}
+          {isRunning && (
+            <div className="progress-wrap">
+              <div className="progress-bar">
+                <div className="progress-fill" />
+              </div>
+              <p className="progress-msg">{jobStatus.progress || t("upload.processing")}</p>
+            </div>
+          )}
+
+          {/* ── Error ── */}
+          {isFailed && (
+            <div className="result-error">
+              <p>{t("upload.failed")}</p>
+              {jobStatus.error && <p className="result-error-detail">{jobStatus.error}</p>}
+              <button className="analyze-btn" onClick={() => { setJobStatus(null); setJobId(null); }}>
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {/* ── Results ── */}
+          {isDone && (
+            <div className="results-wrap" data-aos="fade-up">
+
+              <div className="result-meta">
+                <span className="result-badge">
+                  {result.atlas_available ? t("upload.atlas_on") : t("upload.atlas_off")}
+                </span>
+                {result.paths_found > 0 && (
+                  <span className="result-badge">
+                    {t("upload.paths_found")}: {result.paths_found}
+                  </span>
+                )}
+              </div>
+
+              {result.volumes_cm3 && (
+                <div className="volumes-card">
+                  <h4>{t("upload.volumes")}</h4>
+                  <ul>
+                    {Object.entries(result.volumes_cm3).map(([name, vol]) => (
+                      <li key={name}><span>{name}</span><span>{vol} cm³</span></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <h3 className="viewer-title">{t("upload.view_3d")}</h3>
+              <p className="viewer-hint">{t("upload.view_2d_hint")}</p>
+              <iframe
+                title="3D Surgical Planning"
+                src={`${API_URL}/view/${jobId}`}
+                className="viewer-iframe"
+                allowFullScreen
+              />
+
+              <div className="download-row">
+                {result.downloads?.zip && (
+                  <a
+                    href={`${API_URL}${result.downloads.zip}`}
+                    download
+                    className="dl-btn dl-btn-primary"
+                  >
+                    {t("upload.download_zip")}
+                  </a>
+                )}
+                {result.downloads?.tumor_meshes &&
+                  Object.entries(result.downloads.tumor_meshes).map(([name, url]) => (
+                    <a key={name} href={`${API_URL}${url}`} download className="dl-btn">
+                      {name} (.vtk)
+                    </a>
+                  ))
+                }
+                {result.downloads?.surgical_paths &&
+                  Object.entries(result.downloads.surgical_paths).map(([name, url]) => (
+                    <a key={name} href={`${API_URL}${url}`} download className="dl-btn">
+                      {name} (.vtk)
+                    </a>
+                  ))
+                }
+              </div>
+
+              <button
+                className="analyze-btn"
+                style={{ marginTop: "24px" }}
+                onClick={() => { setJobStatus(null); setJobId(null); setMriFiles({ t1: null, t1ce: null, t2: null, flair: null }); }}
+              >
+                Analyze Another Case
+              </button>
+
+            </div>
+          )}
+
         </div>
       </section>
 
@@ -304,7 +466,7 @@ function HomePage() {
 
             <div className="supervisor-avatar-wrap">
               <img
-                src={supervisorImg}
+                // src={supervisorImg}
                 alt="Supervisor"
                 className="supervisor-avatar"
               />
@@ -321,18 +483,7 @@ function HomePage() {
           <div className="team-grid-wrapper">
             <div className="team-grid">
 
-              {members.map((m, i) => (
-                <div
-                  className="member-circle-card"
-                  data-aos="fade-up"
-                  data-aos-delay={i * 100}
-                  key={i}
-                >
-                  <img src={m.img} alt={m.name} className="member-circle" />
-                  <h3 className="member-name">{m.name}</h3>
-                  <p className="member-role">{m.role}</p>
-                </div>
-              ))}
+             
 
             </div>
           </div>

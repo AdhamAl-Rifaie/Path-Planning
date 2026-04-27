@@ -36,7 +36,7 @@
 },
   "get_started": {
     "title": "Start Smart Pre-Surgery Planning",
-    "text": "Enter patient data or upload the required medical files to receive intelligent support before surgery.",
+    "text": "Upload four MRI modalities to receive AI-powered tumor segmentation, functional cortex mapping, and the safest surgical path.",
     "button": "Get Started"
   },
   "about": {
@@ -59,7 +59,7 @@
     "error_generic": "Something went wrong. Please try again.",
     "error_config": "Contact form is not configured on the server.",
     "error_too_long": "Message is too long.",
-    
+
     "socials": {
       "linkedin": "LinkedIn",
       "github": "GitHub",
@@ -68,13 +68,22 @@
     }
   },
   "upload": {
-    "title": "Upload Medical Files",
-    "subtitle": "Enter patient data or upload the required pre-surgery files",
-    "description": "Our intelligent system will analyze the medical data or files to assist in pre-surgery planning.",
-    "click_upload": "Click here to upload files",
-    "analyze": "Analyze Data",
-    "cancel": "Cancel",
-    "select_first": "Please select a file first",
-    "uploading": "Uploading"
+    "t1_label":    "T1 MRI",
+    "t1ce_label":  "T1CE MRI",
+    "t2_label":    "T2 MRI",
+    "flair_label": "FLAIR MRI",
+    "file_hint":   ".nii or .nii.gz",
+    "analyze_btn": "Analyze MRI",
+    "select_all":  "Please select all 4 MRI files before submitting.",
+    "processing":  "Processing…",
+    "done":        "Analysis complete",
+    "failed":      "Analysis failed. Please try again.",
+    "view_3d":     "3D Surgical Planning Viewer",
+    "view_2d_hint":"Expand the 2D axial / coronal views inside the viewer below.",
+    "download_zip":"Download All Files (.zip)",
+    "paths_found": "Surgical paths found",
+    "volumes":     "Tumor Volumes (cm³)",
+    "atlas_on":    "Functional cortex mapping: active",
+    "atlas_off":   "Functional cortex mapping: unavailable (atlas registration failed)"
   }
 }

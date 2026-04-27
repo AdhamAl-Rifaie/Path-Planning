@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/projects/Pre-Surgery/**)",
+      "Bash(dir \"D:/projects/Pre-Surgery/\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}
