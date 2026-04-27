@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+torch
+monai
+antspyx
+nibabel
+numpy
+pyvista
+plotly
+scikit-image
+scipy
+nilearn
