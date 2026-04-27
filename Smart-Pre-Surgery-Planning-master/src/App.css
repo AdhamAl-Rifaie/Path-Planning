@@ -1,0 +1,104 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html, #root {
+  height: 100%;
+  width: 100%;
+  font-family: "Poppins", sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #090a1a, #1b1f3a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🌟 Animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* خلي الأنيميشن على السكشن بس */
+.section {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+/* ❌ اتحذف ده خلاص
+.section * {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.3s;
+}
+*/
+
+/* Overview Hover */
+.overview-square {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 1;
+}
+
+.overview-square:hover {
+  transform: translateY(-10px) scale(1.05);
+  z-index: 5;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Buttons */
+.start-btn,
+.contact-btn {
+  transition: all 0.3s ease-in-out;
+}
+
+.start-btn:hover,
+.contact-btn:hover {
+  background-color: #0093d5;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0,180,255,0.7);
+  transform: scale(1.05);
+}
+
+/* Background */
+.dark-section::before,
+.dark-section::after {
+  pointer-events: none;
+}
+
+/* Language switcher */
+.language-switcher {
+  position: fixed;
+  top: 15px;
+  left: 20px;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 5px 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.language-switcher select {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #222;
+  outline: none;
+  cursor: pointer;
+}

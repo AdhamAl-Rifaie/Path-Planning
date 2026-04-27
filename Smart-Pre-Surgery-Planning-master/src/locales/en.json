@@ -1,0 +1,80 @@
+{
+  "navbar": {
+    "home": "Home",
+    "overview": "Overview",
+    "get_started": "Get Started",
+    "about_us": "About Us",
+    "contact": "Contact"
+  },
+ "hero": {
+  "eyebrow": "Smart Medical Planning Platform",
+  "title": "Smart Pre-Surgery Planning System For Brain",
+  "subtitle": "Helping doctors make more accurate pre-operative decisions using Artificial Intelligence.",
+  "explore_more": "Explore More"
+},
+ "overview": {
+  "title": "Project Overview",
+  "intro": "Our project is a complete intelligent system for brain pre-surgery planning that leverages MRI data and Artificial Intelligence to segment tumors, analyze critical brain regions, and determine the safest surgical path to reach the tumor.",
+
+  "goal_title": "🎯 Goal",
+  "goal_text": "The system aims to assist doctors in selecting the optimal surgical trajectory to reach the tumor while minimizing risk, by analyzing multi-modal MRI scans and understanding the spatial relationship between the tumor and critical functional brain areas.",
+
+  "tech_title": "🧠 Technology",
+  "tech_text": "The project utilizes advanced tools such as PyTorch and MONAI for medical image processing, a U-Net model for tumor segmentation, ANTs for accurate 3D image registration, and PyVista for interactive 3D visualization.",
+
+  "impact_title": "🌍 Impact",
+  "impact_text": "The system improves surgical accuracy and reduces potential damage to critical brain regions, enhancing patient safety and supporting more confident pre-operative medical decisions.",
+
+  "features_title": "✨ Features",
+  "features_text": "Multi-modal MRI analysis (T1, T1ce, T2, FLAIR), tumor segmentation into sub-regions, functional brain area mapping, 3D risk map generation, and optimal surgical path selection based on multiple criteria.",
+
+  "workflow_title": "⚙️ Workflow",
+  "workflow_text": "The pipeline starts with MRI data preprocessing and normalization, followed by tumor segmentation using U-Net. Functional brain masks are then generated, combined into a 3D risk map, and finally the A* algorithm is used to compute the safest surgical path based on path length, risk, and trajectory angle.",
+
+  "benefits_title": "📊 Metrics & Results",
+  "benefits_text": "Model performance is evaluated using Dice Score for overlap accuracy and HD95 for boundary precision. These metrics ensure reliable segmentation and continuous model improvement."
+},
+  "get_started": {
+    "title": "Start Smart Pre-Surgery Planning",
+    "text": "Enter patient data or upload the required medical files to receive intelligent support before surgery.",
+    "button": "Get Started"
+  },
+  "about": {
+    "title": "Meet Our Team",
+    "subtitle": "We are a team of developers and engineers working on an intelligent system that supports medical planning before surgery."
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "text": "Follow us or reach out through our social platforms:",
+    "send_message": "Send a Message",
+    "name_placeholder": "Your Name",
+    "email_placeholder": "Your Email",
+    "message_placeholder": "Your Message",
+    "submit_button": "Submit",
+
+    "sending": "Sending…",
+    "success": "Message sent. Thank you!",
+    "error_fill": "Please fill in all fields.",
+    "error_email": "Please enter a valid email address.",
+    "error_generic": "Something went wrong. Please try again.",
+    "error_config": "Contact form is not configured on the server.",
+    "error_too_long": "Message is too long.",
+    
+    "socials": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "instagram": "Instagram",
+      "facebook": "Facebook"
+    }
+  },
+  "upload": {
+    "title": "Upload Medical Files",
+    "subtitle": "Enter patient data or upload the required pre-surgery files",
+    "description": "Our intelligent system will analyze the medical data or files to assist in pre-surgery planning.",
+    "click_upload": "Click here to upload files",
+    "analyze": "Analyze Data",
+    "cancel": "Cancel",
+    "select_first": "Please select a file first",
+    "uploading": "Uploading"
+  }
+}
